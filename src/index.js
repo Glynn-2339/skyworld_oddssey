@@ -1,6 +1,7 @@
 import "./style.css";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 import islandFloor from "./components/islandFloor.js";
 import createTextMesh from "./components/text.js";
@@ -35,7 +36,7 @@ const camera = new THREE.PerspectiveCamera(
   0.5,
   1000
 );
-camera.position.set(0, 50, 0);
+camera.position.set(-50, 30, 50);
 scene.add(camera);
 
 // Renderer
@@ -47,118 +48,86 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 // Lights
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
 scene.add(ambientLight);
 
-const createSpotLight = (
-  color,
-  intensity,
-  distance,
-  angle,
-  penumbra,
-  decay,
-  position
-) => {
-  const light = new THREE.SpotLight(
-    color,
-    intensity,
-    distance,
-    angle,
-    penumbra,
-    decay
-  );
-  light.position.set(...position);
-  light.castShadow = true;
-  light.shadow.mapSize.width = 1024;
-  light.shadow.mapSize.height = 1024;
-  light.shadow.camera.near = 0.5;
-  light.shadow.camera.far = 1000;
-  light.shadow.focus = 1;
-  light.shadow.bias = 0.0001;
+const spotlight = new THREE.SpotLight(0xfff000, 5000, 33, Math.PI * 0.28 );
+spotlight.position.set(-5, 40, 5);
+spotlight.castShadow = true;
 
-  return light;
-};
-const spotLight = createSpotLight(
-  0xfff000,
-  30,
-  35,
-  Math.PI * 0.2,
-  0.1,
-  1,
-  [0, 22.5, 10]
-);
-const level1Light = createSpotLight(
-  0xfff000,
-  200,
-  35,
-  Math.PI * 0.5,
-  0.1,
-  1,
-  [-25, 25, -25]
-);
-const level2Light = createSpotLight(
-  0xfff000,
-  200,
-  35,
-  Math.PI * 0.5,
-  0.1,
-  1,
-  [25, 25, -25]
-);
-const level3Light = createSpotLight(
-  0xfff000,
-  200,
-  35,
-  Math.PI * 0.5,
-  0.1,
-  1,
-  [25, 25, 25]
-);
-const level4Light = createSpotLight(
-  0xfff000,
-  200,
-  35,
-  Math.PI * 0.5,
-  0.1,
-  1,
-  [-25, 25, 25]
-);
-scene.add(level1Light);
-scene.add(level2Light);
-scene.add(level3Light);
-scene.add(level4Light);
-scene.add(spotLight);
+scene.add(spotlight);
+
+
 
 // Helpers
 const axesHelper = new THREE.AxesHelper(5);
 scene.add(axesHelper);
 
 
-// Plane
 
-const planeGeometry = new THREE.PlaneGeometry(1000, 1000, 100, 100);
-const planeMaterial = new THREE.MeshStandardMaterial({
-  map: colorTexture,
-});
-const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
-planeMesh.rotation.x = -Math.PI / 2;
-planeMesh.position.y = -1;
-planeMesh.receiveShadow = true;
-scene.add(planeMesh);
+
+// Clouds
+const objLoader = new GLTFLoader(loading);
+
+
+
+for (let i = 0; i < 84; i++) {
+  objLoader.load("/models/cloud/scene.gltf", (gltf) => {
+    // Set a random scale for each cloud
+    const scale = Math.random() * 0.01 + 0.035; // Adjust the range as needed
+    gltf.scene.scale.set(scale, scale, scale);
+
+    // Randomize the position of each cloud
+    gltf.scene.position.set(
+      (Math.random() - 0.5) * 400, // X position
+      (Math.random() -0.5)*100,   // Y position, starting from 10
+      (Math.random() - 0.5) * 300 // Z position
+    );
+
+    // Randomize the rotation of each cloud
+    gltf.scene.rotation.set(0, Math.random() * Math.PI, 0.1);
+
+
+    scene.add(gltf.scene);
+  });
+}
+
+
 
 // Island
-const cylinder1 = islandFloor(
-  2,
-  16,
-  10.2,
-  52,
-  0x777700,
-  0.01,
-  [-25, -0.5, -25]
-);
-const cylinder2 = islandFloor(2, 16, 10.2, 52, 0x777700, 0.01, [25, -0.5, -25]);
-const cylinder3 = islandFloor(2, 16, 10.2, 52, 0x777700, 0.01, [25, -0.5, 25]);
-const cylinder4 = islandFloor(2, 16, 10.2, 52, 0x777700, 0.01, [-25, -0.5, 25]);
+objLoader.load("/models/mountain_landscape/scene.gltf", (gltf) => {
+  gltf.scene.scale.set(1, 1, 1);
+  gltf.scene.position.set(25, 0, 25);
+  gltf.scene.rotation.set(0, -Math.PI/2, 0);
+  scene.add(gltf.scene);
+});
+
+objLoader.load("/models/mountain_landscape/scene.gltf", (gltf) => {
+  gltf.scene.scale.set(1, 1, 1);
+  gltf.scene.position.set(-25, 0, 25);
+  gltf.scene.rotation.set(0, Math.PI, 0);
+  scene.add(gltf.scene);
+});
+
+objLoader.load("/models/mountain_landscape/scene.gltf", (gltf) => {
+  gltf.scene.scale.set(1, 1, 1);
+  gltf.scene.position.set(25, 0, -25);
+  gltf.scene.rotation.set(0, 0, 0);
+  scene.add(gltf.scene);
+});
+
+objLoader.load("/models/mountain_landscape/scene.gltf", (gltf) => {
+  gltf.scene.scale.set(1, 1, 1);
+  gltf.scene.position.set(-25, 0, -25);
+  gltf.scene.rotation.set(0, Math.PI/2, 0);
+  scene.add(gltf.scene);
+});
+
+objLoader.load("/models/sky_background.glb", (gltf) => {
+  gltf.scene.scale.set(1, 1, 1);
+  gltf.scene.position.set(0, 0, 0);
+  scene.add(gltf.scene);
+});
 const pipeline = islandFloor(
   16,
   16,
@@ -170,81 +139,85 @@ const pipeline = islandFloor(
   [Math.PI / 2, 0, 0]
 );
 
-// Add cylinders to the scene
-scene.add(cylinder1);
-scene.add(cylinder2);
-scene.add(cylinder3);
-scene.add(cylinder4);
 scene.add(pipeline);
 
 // Rings
 const color1 = new THREE.Color(0x8dd964);
-const ringGeometry = new THREE.TorusGeometry(0.25, 0.15, 15, 45);
+const ringGeometry = new THREE.TorusGeometry(0.3, 0.15, 15, 45);
 const ringMaterial = new THREE.MeshStandardMaterial({
   color: color1,
   roughness: 0.01,
   metalness: 0.01,
 });
-for (let i = 0; i < 171; i++) {
+for (let i = 0; i < 371; i++) {
   const ringMesh = new THREE.Mesh(ringGeometry, ringMaterial);
 
   ringMesh.position.set(
-    (Math.random() - 0.5) * 20,
-    (Math.random() - 0.5) * 4 + 13,
-    (Math.random() - 0.5) * 3
+    (Math.random() - 0.5) * 100, // X position
+    1 + Math.random() * 10,   // Y position, starting from 10
+    (Math.random() - 0.5) * 100 // Z position
   );
 
   ringMesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
   const scale = Math.random() * Math.random();
-  ringMesh.scale.set(scale * 2, scale * 2, scale * 2);
+  ringMesh.scale.set(scale * 3, scale * 3, scale * 2);
 
   ringMesh.castShadow = true;
   scene.add(ringMesh);
 }
 //FONTS
 createTextMesh(
-  "SKYWORLD ODYSSEY",
-  "/fonts/helvetiker_regular.typeface.json",
-  "/textures/minecraft.png",
-  1.1,
-  0.2,
-  [0, 8, 0]
+  "SKYWORLD",
+  "/fonts/8-bit Operator+ 8_Regular.json",
+  "/textures/matcaps/8.png",
+  4.5,
+  1,
+  [0, 26, 0]
 ).then((mesh) => scene.add(mesh));
 
 createTextMesh(
-  "Level 1",
-  "/fonts/helvetiker_regular.typeface.json",
-  "/textures/minecraft.png",
-  0.8,
+  "ODYSSEY",
+  "/fonts/8-bit Operator+ 8_Regular.json",
+  "/textures/matcaps/8.png",
+  4.5,
   0.2,
-  [-25, 8, -25]
-).then((mesh) => scene.add(mesh));
-
-createTextMesh(
-  "Level 2",
-  "/fonts/helvetiker_regular.typeface.json",
-  "/textures/minecraft.png",
-  0.8,
-  0.2,
-  [25, 8, -25]
-).then((mesh) => scene.add(mesh));
-
-createTextMesh(
-  "Level 3",
-  "/fonts/helvetiker_regular.typeface.json",
-  "/textures/minecraft.png",
-  0.8,
-  0.2,
-  [ 25, 8, 25]
+  [0, 20, 0]
 ).then((mesh) => scene.add(mesh));
 
 createTextMesh(
   "Level 4",
-  "/fonts/helvetiker_regular.typeface.json",
-  "/textures/minecraft.png",
-  0.8,
+  "/fonts/8-bit Operator+ 8_Regular.json",
+  "/textures/matcaps/7.png",
+  3.5,
   0.2,
-  [-25, 8, 25]
+  [-25, 12, -25]
+).then((mesh) => scene.add(mesh));
+
+createTextMesh(
+  "Level 3",
+  "/fonts/8-bit Operator+ 8_Regular.json",
+  "/textures/matcaps/7.png",
+  3.5,
+  0.2,
+  [25, 12, -25]
+).then((mesh) => scene.add(mesh));
+
+createTextMesh(
+  "Level 2",
+  "/fonts/8-bit Operator+ 8_Regular.json",
+  "/textures/matcaps/7.png",
+  3.5,
+  0.2,
+  [ 25, 12, 25]
+).then((mesh) => scene.add(mesh));
+
+createTextMesh(
+  "Level 1",
+  "/fonts/8-bit Operator+ 8_Regular.json",
+  "/textures/matcaps/7.png",
+  3.5,
+  0.2,
+  [-25, 12, 25]
 ).then((mesh) => scene.add(mesh));
 
 // Orbit Controls
@@ -262,11 +235,7 @@ const loop = () => {
         if (object.geometry.type === "TorusGeometry") {
           object.rotation.x += 0.01 * Math.sin(Date.now() * 0.001);
           object.rotation.y += 0.02 * Math.sin(Date.now() * 0.001);
-          object.scale.set(
-            Math.sin(Date.now() * 0.001) * 0.3 + 0.8,
-            Math.sin(Date.now() * 0.001) * 0.3 + 0.8,
-            Math.sin(Date.now() * 0.001) * 0.3 + 0.8
-          );
+          
         }
       }
     });
@@ -282,4 +251,16 @@ const loop = () => {
 };
 loop();
 
+// Resize
+window.addEventListener("resize", () => {
+  // Update sizes
+  sizes.width = window.innerWidth;
+  sizes.height = window.innerHeight;
 
+  // Update camera
+  camera.aspect = sizes.width / sizes.height;
+  camera.updateProjectionMatrix();
+
+  // Update renderer
+  renderer.setSize(sizes.width, sizes.height);
+});

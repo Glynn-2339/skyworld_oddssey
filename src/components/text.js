@@ -15,7 +15,13 @@ const createTextMesh = (text, fontPath, texturePath, size, height, position) => 
           font: font,
           size: size,
           height: height,
-          // ... other text geometry parameters ...
+          curveSegments: 12,
+          bevelEnabled: true,
+          bevelThickness: 0.3,
+          bevelSize: 0.02,
+          bevelOffset: 0, 
+          bevelSegments: 5,
+
         });
         textGeometry.center();
   
@@ -27,6 +33,8 @@ const createTextMesh = (text, fontPath, texturePath, size, height, position) => 
         const textMesh = new THREE.Mesh(textGeometry, textMaterial);
         textMesh.position.set(...position);
         textMesh.castShadow = true;
+        textMesh.receiveShadow = true;
+        textMesh.rotation.y = Math.PI * -0.25;
   
         resolve(textMesh);
       }, undefined, reject);

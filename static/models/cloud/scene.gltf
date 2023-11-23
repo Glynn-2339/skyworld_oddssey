@@ -1,0 +1,157 @@
+{
+  "accessors": [
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 5362,
+      "max": [
+        457.7467346191406,
+        26.969785690307617,
+        349.983642578125
+      ],
+      "min": [
+        -366.9019775390625,
+        -156.51637268066406,
+        71.48175811767578
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 64344,
+      "componentType": 5126,
+      "count": 5362,
+      "max": [
+        0.9990715384483337,
+        0.9999464154243469,
+        0.9999496340751648
+      ],
+      "min": [
+        -0.9998829960823059,
+        -0.9999920129776001,
+        -0.9999836087226868
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 32028,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "asimchitrakar (https://sketchfab.com/asimchitrakar)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/cloud-5237b676f309443c95157c5d9ab516d8",
+      "title": "CLOUD"
+    },
+    "generator": "Sketchfab-12.64.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 128112,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 128688,
+      "byteOffset": 128112,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 256800,
+      "uri": "scene.bin"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "emissiveFactor": [
+        0.017100487021870385,
+        0.017100487021870385,
+        0.017100487021870385
+      ],
+      "name": "material_0",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.7241664348743744,
+          0.7241664348743744,
+          0.7241664348743744,
+          1.0
+        ],
+        "metallicFactor": 0.0,
+        "roughnessFactor": 0.6
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Object_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0
+          },
+          "indices": 2,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.220446049250313e-16,
+        -1.0,
+        0.0,
+        0.0,
+        1.0,
+        2.220446049250313e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [
+        2
+      ],
+      "name": "cb43a1395ef54cb28ac0a7a7fe163c61.obj.cleaner.materialmerger.gles"
+    },
+    {
+      "mesh": 0,
+      "name": "Object_2"
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ]
+}
