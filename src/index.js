@@ -6,6 +6,18 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import islandFloor from "./components/islandFloor.js";
 import createTextMesh from "./components/text.js";
 
+// bacground Music
+const backgroundMusic = new Audio('/sounds/background.mp3');
+backgroundMusic.volume = 0.5;
+backgroundMusic.loop = true;
+
+
+function playMusic(event) {
+  if (event.key === "p" || event.key === "P") {
+    backgroundMusic.play();
+  }
+}
+
 //Loading Manager
 const loading = new THREE.LoadingManager();
 loading.onStart = () => {
@@ -13,6 +25,7 @@ loading.onStart = () => {
 };
 loading.onLoad = () => {
   console.log("loading finished");
+  
 };
 
 // Textures
@@ -128,18 +141,7 @@ objLoader.load("/models/sky_background.glb", (gltf) => {
   gltf.scene.position.set(0, 0, 0);
   scene.add(gltf.scene);
 });
-const pipeline = islandFloor(
-  16,
-  16,
-  30.2,
-  52,
-  0x777700,
-  0.01,
-  [-25, 5, -60],
-  [Math.PI / 2, 0, 0]
-);
 
-scene.add(pipeline);
 
 // Rings
 const color1 = new THREE.Color(0x8dd964);
@@ -264,3 +266,29 @@ window.addEventListener("resize", () => {
   // Update renderer
   renderer.setSize(sizes.width, sizes.height);
 });
+
+window.addEventListener("keydown", playMusic);
+
+class CustomSinCurve extends THREE.Curve {
+
+	constructor( scale = 1 ) {
+		super();
+		this.scale = scale;
+	}
+
+	getPoint( t, optionalTarget = new THREE.Vector3() ) {
+
+		const tx = t * 3 - 1.5;
+		const ty = Math.sin( 2 * Math.PI * t );
+		const tz = 0;
+
+		return optionalTarget.set( tx, ty, tz ).multiplyScalar( this.scale );
+	}
+}
+
+const path = new CustomSinCurve( 20 );
+const geometry = new THREE.TubeGeometry( path, 44, 5, 8, false );
+const material = new THREE.MeshBasicMaterial( { color: color1 } );
+const mesh = new THREE.Mesh( geometry, material );
+mesh.position.set(-25, 5, -60);
+scene.add( mesh );
