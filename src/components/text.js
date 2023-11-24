@@ -15,26 +15,21 @@ const createTextMesh = (text, fontPath, texturePath, size, height, position) => 
           font: font,
           size: size,
           height: height,
-          curveSegments: 12,
-          bevelEnabled: true,
-          bevelThickness: 0.3,
-          bevelSize: 0.02,
-          bevelOffset: 0, 
-          bevelSegments: 5,
 
         });
         textGeometry.center();
   
         const textMaterial = new THREE.MeshStandardMaterial({
           map: colorTexture,
-          // ... other material parameters ...
         });
   
         const textMesh = new THREE.Mesh(textGeometry, textMaterial);
         textMesh.position.set(...position);
         textMesh.castShadow = true;
+
         textMesh.receiveShadow = true;
         textMesh.rotation.y = Math.PI * -0.25;
+
   
         resolve(textMesh);
       }, undefined, reject);
