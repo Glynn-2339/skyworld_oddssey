@@ -1,82 +1,8 @@
 .webgl {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-body {
-  margin: 0;
-  overflow: hidden;
-}
-#scorecard {
-  position: absolute;
-  top: 10px;
-  right: 30px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-family: "Press Start 2P", cursive;
-  text-shadow: 2px 2px 2px #000;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  font-weight: 600;
-  align-items: flex-end;
-}
-#time {
-  font-size: 1.5em;
-  color: #00fff2;
-}
-#score {
-  font-size: 2em;
-  margin-left: 10px;
-  color: #00ff73;
-}
-#lives {
-  font-size: 1.5em;
-}
-#heart-icon {
-  color: red;
-  margin-right: 5px;
-}
-#life-score {
-  color: magenta;
-}
-
-.webgl {
-  display: block;
-}
-
-@media (max-width: 768px) {
-  #scorecard {
-    top: 5px;
-    right: 5px;
-    font-size: 0.8em; /* Smaller text on small devices */
-  }
-
-  /* Adjustments for specific elements if needed */
-  #time,
-  #score,
-  #lives,
-  #stars {
-    font-size: 0.8em;
-  }
-}
-
-@media (max-width: 480px) {
-  #scorecard {
-    top: 2px;
-    right: 2px; /* Even smaller text for very small devices */
-  }
-
-  /* Further adjustments for specific elements if needed */
-  #lives,
-  #score {
-    font-size: 1.8em;
-  }
-
-  #time {
-    font-size: 1.2em;
-  }
-}
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    
+    }

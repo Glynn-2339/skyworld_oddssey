@@ -15,21 +15,18 @@ const createTextMesh = (text, fontPath, texturePath, size, height, position) => 
           font: font,
           size: size,
           height: height,
-
+          // ... other text geometry parameters ...
         });
         textGeometry.center();
   
         const textMaterial = new THREE.MeshStandardMaterial({
           map: colorTexture,
+          // ... other material parameters ...
         });
   
         const textMesh = new THREE.Mesh(textGeometry, textMaterial);
         textMesh.position.set(...position);
         textMesh.castShadow = true;
-
-        textMesh.receiveShadow = true;
-        textMesh.rotation.y = Math.PI * -0.25;
-
   
         resolve(textMesh);
       }, undefined, reject);
