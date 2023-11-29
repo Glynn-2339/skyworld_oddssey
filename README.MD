@@ -1,6 +1,6 @@
 # Skyward Odyssey(COMPUTER GRAPHICS GAME PROJECT)
 
-Skyward Odyssey is a thrilling computer graphics game project developed using WebGl, node.js, and JavaScript. Embark on an adventurous journey through four levels of difficulty, each featuring its own unique island filled with challenges and obstacles. Navigate your character through the breathtaking landscapes while dodging obstacles and overcoming difficulties.
+Skyward Odyssey is a thrilling computer graphics game project developed using WebGl & node.js. Embark on an adventurous journey through four levels of difficulty, each featuring its own unique island filled with challenges and obstacles. Navigate your character through the breathtaking landscapes while dodging obstacles and overcoming difficulties.
 
 ## Magenta License
 
