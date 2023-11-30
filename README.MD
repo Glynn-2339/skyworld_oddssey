@@ -1,10 +1,6 @@
  # Skyward Odyssey(COMPUTER GRAPHICS GAME PROJECT GROUP 12)
 
-Skyward Odyssey is a thrilling computer graphics game project developed using WebGl,webpack & node.js. Embark on an adventurous journey taking your character through four levels of difficulty, each featuring its own unique island filled with challenges and obstacles. Navigate your character through the breathtaking landscapes while dodging obstacles and overcoming difficulties.
-
-## Magenta License
-
-This project, Glynn-2339/skyworld_oddssey, is registered under the Magenta License.
+Skyward Odyssey is a thrilling computer graphics game project developed using WebGl,webpack & node.js. Embark on an adventurous journey taking your character through four levels of difficulty, each featuring its own unique island filled with challenges and obstacles. Navigate your character through the breathtaking landscapes while dodging obstacles and overcoming difficulties
 
 ## Installation
 
