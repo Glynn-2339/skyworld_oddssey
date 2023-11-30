@@ -81,6 +81,8 @@ const splineCamera = new THREE.PerspectiveCamera(
   0.5,
   1000
 );
+splineCamera.position.set(-50, 30, 50);
+
 
 // Renderer
 const canvas = document.querySelector(".webgl");
@@ -216,6 +218,14 @@ const levelGroups = {
 
 Object.values(levelGroups).forEach((group) => scene.add(group));
 
+// Define the curves for each level
+const curves = {
+  "Level 1": new HeartCurve(2.5),
+  "Level 2": new KnotCurve(2),
+  "Level 3": new KnotCurve(2),
+  "Level 4": new TorusKnot(5)
+};
+
 createTextMesh(
   "Level 4",
   "/fonts/8-bit Operator+ 8_Regular.json",
@@ -226,12 +236,7 @@ createTextMesh(
 ).then((mesh) => {
   mesh.name = "Level 4";
   levelGroups["Level 4"].add(mesh);
-  const torusKnot = new TorusKnot(5); // Adjust the size as needed
-  const tknotGeometry = new THREE.TubeGeometry(torusKnot, 50, 2, 3, true);
-  const tknotMaterial = new THREE.MeshLambertMaterial({ color: 0xffffcf });
-  const tKnotMesh = new THREE.Mesh(tknotGeometry, tknotMaterial);
-  tKnotMesh.position.set(-70, 0, -25);
-  levelGroups["Level 4"].add(tKnotMesh);
+  levelGroups["Level 4"].curve = curves["Level 4"];
 });
 
 createTextMesh(
@@ -244,13 +249,7 @@ createTextMesh(
 ).then((mesh) => {
   mesh.name = "Level 3";
   levelGroups["Level 3"].add(mesh);
-  const knotShape = new KnotCurve(2); // Adjust the size as needed
-  const knotGeometry = new THREE.TubeGeometry(knotShape, 50, 3, 4, true);
-  const knotMaterial = new THREE.MeshLambertMaterial({ color: 0xffffcf });
-  const lapMesh = new THREE.Mesh(knotGeometry, knotMaterial);
-  lapMesh.position.set(60, -30, -100);
-  lapMesh.rotation.set(0, Math.PI / 2, 0);
-  levelGroups["Level 3"].add(lapMesh);
+  levelGroups["Level 3"].curve = curves["Level 3"];
 });
 
 createTextMesh(
@@ -263,12 +262,7 @@ createTextMesh(
 ).then((mesh) => {
   mesh.name = "Level 2";
   levelGroups["Level 2"].add(mesh);
-  const knotShape = new KnotCurve(2); // Adjust the size as needed
-  const knotGeometry = new THREE.TubeGeometry(knotShape, 50, 3, 4, true);
-  const knotMaterial = new THREE.MeshLambertMaterial({ color: 0xffffcf });
-  const knotMesh = new THREE.Mesh(knotGeometry, knotMaterial);
-  knotMesh.position.set(100, -30, 25);
-  levelGroups["Level 2"].add(knotMesh);
+  levelGroups["Level 2"].curve = curves["Level 2"];
 });
 
 createTextMesh(
@@ -281,12 +275,7 @@ createTextMesh(
 ).then((mesh) => {
   mesh.name = "Level 1";
   levelGroups["Level 1"].add(mesh);
-  const heartShape = new HeartCurve(2.5); // Adjust the size as needed
-  const heartGeometry = new THREE.TubeGeometry(heartShape, 50, 3, 3, true);
-  const heartMaterial = new THREE.MeshLambertMaterial({ color: 0xffffcf });
-  const heartMesh = new THREE.Mesh(heartGeometry, heartMaterial);
-  heartMesh.position.set(-100, 0, 25);
-  levelGroups["Level 1"].add(heartMesh);
+  levelGroups["Level 1"].curve = curves["Level 1"];
 });
 
 // Orbit Controls
@@ -306,42 +295,46 @@ window.addEventListener("resize", () => {
   // Update renderer
   renderer.setSize(sizes.width, sizes.height);
 });
+//Level Starts
+const levelStartPoints = {
+  "Level 1": { position: new THREE.Vector3(-50, 30, 50), lookAt: new THREE.Vector3(0, 0, 0) },
+  "Level 2": { position: new THREE.Vector3(-60, 35, 60), lookAt: new THREE.Vector3(0, 0, 0) },
+  "Level 3": { position: new THREE.Vector3(-70, 40, 70), lookAt: new THREE.Vector3(0, 0, 0) },
+  "Level 4": { position: new THREE.Vector3(-80, 45, 80), lookAt: new THREE.Vector3(0, 0, 0) }
+};
+
 
 // Camera Animation
 function animateCameraToLevel(clickedMesh) {
   const levelGroup = levelGroups[clickedMesh.name];
-  if (!levelGroup) {
-    console.error("Group not found for", clickedMesh.name);
+  if (!levelGroup || !levelGroup.curve) {
+    console.error("Group or curve not found for", clickedMesh.name);
     return;
   }
 
-  // Find the spline mesh within the group
-  const splineMesh = levelGroup.children.find(
-    (child) =>
-      child instanceof THREE.Mesh &&
-      child.geometry instanceof THREE.TubeGeometry
-  );
-  if (!splineMesh) {
-    console.error("Spline mesh not found in group for", clickedMesh.name);
-    return;
-  }
+  // Find the spline 
 
-  const spline = splineMesh.geometry.parameters.path;
+  const spline = levelGroup.curve;
 
   const looptime = 20 * 1000; // Duration of the animation
   let t = 0;
 
   function animate() {
     t += (1 / looptime) * clock.getDelta();
-    if (t > 1) t = 0; // Loop or reset based on your preference
+    if (t > 1) {
+      t = 0;
+      renderer.render(scene, camera); // Switch back to main camera after completion
+      return; // Stop the animation loop
+    }
 
     const position = spline.getPointAt(t);
     const tangent = spline.getTangentAt(t).normalize();
     const lookAtPosition = position.clone().add(tangent);
 
-    camera.position.copy(position);
-    camera.lookAt(lookAtPosition);
+    splineCamera.position.copy(position);
+    splineCamera.lookAt(lookAtPosition);
 
+    renderer.render(scene, splineCamera); // Render with splineCamera
     requestAnimationFrame(animate);
   }
 
@@ -358,18 +351,30 @@ function onCanvasClick(event) {
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
 
-  const intersects = raycaster.intersectObjects(levelTextMeshes);
+  const allLevelMeshes = []; // This should be an array of all clickable meshes
+  for (const groupName in levelGroups) {
+    allLevelMeshes.push(...levelGroups[groupName].children);
+  }
+
+  const intersects = raycaster.intersectObjects(allLevelMeshes);
   if (intersects.length > 0) {
-    // A level text mesh was clicked
-    animateCameraToLevel(intersects[0].object);
+    const clickedLevel = intersects[0].object.name;
+    const startPoint = levelStartPoints[clickedLevel];
+    if (startPoint) {
+      camera.position.copy(startPoint.position);
+      camera.lookAt(startPoint.lookAt);
+    }
   }
 }
 
 //Player Character
-const player1 = objLoader.load("/models/player.glb", (gltf) => {
+let player1;
+
+const playerLoader = objLoader.load("/models/player.glb", (gltf) => {
   gltf.scene.scale.set(0.02, 0.02, 0.02);
   gltf.scene.position.set(0, 10, 0);
   scene.add(gltf.scene);
+  player1 = gltf.scene; // Store the player object for reference
 });
 
 const playerSpeed = 5;
@@ -386,6 +391,8 @@ window.addEventListener("keyup", (event) => {
 });
 
 const updatePlayerPosition = () => {
+  if (!player1) return; // Check if the player is loaded
+
   movementDirection.set(
     keysPressed["a"] ? -1 : keysPressed["d"] ? 1 : 0,
     0,
@@ -401,6 +408,7 @@ const loop = () => {
   //TIMING
   const animate = () => {
     // Update the positions, rotations, and scales of the rings
+    updatePlayerPosition();
     scene.traverse((object) => {
       if (object instanceof THREE.Mesh) {
         if (object.geometry.type === "TorusGeometry") {
