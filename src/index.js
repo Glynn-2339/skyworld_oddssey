@@ -15,7 +15,8 @@ import createTextMesh from "./components/text.js";
 const backgroundMusic = new Audio("/sounds/background.mp3");
 backgroundMusic.volume = 0.25;
 backgroundMusic.loop = true;
-backgroundMusic.play();
+
+let isMusicPlaying = false;
 
 
 
@@ -51,7 +52,7 @@ const camera = new THREE.PerspectiveCamera(
   0.5,
   1000
 );
-camera.position.set(-50, 30, 50);
+camera.position.set(0, 50, 80);
 scene.add(camera);
 
 //Bounds
@@ -76,10 +77,10 @@ const levelTextMeshes = [];
 
 // Spline camera
 const splineCamera = new THREE.PerspectiveCamera(
-  84,
+  45,
   sizes.width / sizes.height,
   0.5,
-  1000
+  300
 );
 splineCamera.position.set(-50, 30, 50);
 
@@ -129,34 +130,7 @@ for (let i = 0; i < 64; i++) {
   });
 }
 
-// Island
-objLoader.load("/models/mountain_landscape.glb", (gltf) => {
-  gltf.scene.scale.set(1, 1, 1);
-  gltf.scene.position.set(25, 0, 25);
-  gltf.scene.rotation.set(0, -Math.PI / 2, 0);
-  scene.add(gltf.scene);
-});
 
-objLoader.load("/models/mountain_landscape.glb", (gltf) => {
-  gltf.scene.scale.set(1, 1, 1);
-  gltf.scene.position.set(-25, 0, 25);
-  gltf.scene.rotation.set(0, Math.PI, 0);
-  scene.add(gltf.scene);
-});
-
-objLoader.load("/models/mountain_landscape.glb", (gltf) => {
-  gltf.scene.scale.set(1, 1, 1);
-  gltf.scene.position.set(25, 0, -25);
-  gltf.scene.rotation.set(0, 0, 0);
-  scene.add(gltf.scene);
-});
-
-objLoader.load("/models/mountain_landscape.glb", (gltf) => {
-  gltf.scene.scale.set(1, 1, 1);
-  gltf.scene.position.set(-25, 0, -25);
-  gltf.scene.rotation.set(0, Math.PI / 2, 0);
-  scene.add(gltf.scene);
-});
 
 objLoader.load("/models/sky_background.glb", (gltf) => {
   gltf.scene.scale.set(1, 1, 1);
@@ -218,6 +192,34 @@ const levelGroups = {
 
 Object.values(levelGroups).forEach((group) => scene.add(group));
 
+// Island
+objLoader.load("/models/mountain_landscape.glb", (gltf) => {
+  gltf.scene.scale.set(1, 1, 1);
+  gltf.scene.position.set(25, 0, 25);
+  gltf.scene.rotation.set(0, -Math.PI / 2, 0);
+  levelGroups['Level 2'].add(gltf.scene);
+});
+
+objLoader.load("/models/mountain_landscape.glb", (gltf) => {
+  gltf.scene.scale.set(1, 1, 1);
+  gltf.scene.position.set(-25, 0, 25);
+  gltf.scene.rotation.set(0, Math.PI, 0);
+  levelGroups['Level 1'].add(gltf.scene);
+});
+
+objLoader.load("/models/mountain_landscape.glb", (gltf) => {
+  gltf.scene.scale.set(1, 1, 1);
+  gltf.scene.position.set(25, 0, -25);
+  gltf.scene.rotation.set(0, 0, 0);
+  levelGroups['Level 3'].add(gltf.scene);
+});
+
+objLoader.load("/models/mountain_landscape.glb", (gltf) => {
+  gltf.scene.scale.set(1, 1, 1);
+  gltf.scene.position.set(-25, 0, -25);
+  gltf.scene.rotation.set(0, Math.PI / 2, 0);
+  levelGroups['Level 4'].add(gltf.scene);
+});
 // Define the curves for each level
 const curves = {
   "Level 1": new HeartCurve(2.5),
@@ -232,7 +234,7 @@ createTextMesh(
   "/textures/matcaps/7.png",
   3.5,
   0.2,
-  [-25, 12, -25]
+  [-25, 19, -25]
 ).then((mesh) => {
   mesh.name = "Level 4";
   levelGroups["Level 4"].add(mesh);
@@ -245,7 +247,7 @@ createTextMesh(
   "/textures/matcaps/7.png",
   3.5,
   0.2,
-  [25, 12, -25]
+  [25, 19, -25]
 ).then((mesh) => {
   mesh.name = "Level 3";
   levelGroups["Level 3"].add(mesh);
@@ -258,7 +260,7 @@ createTextMesh(
   "/textures/matcaps/7.png",
   3.5,
   0.2,
-  [25, 12, 25]
+  [25, 19, 25]
 ).then((mesh) => {
   mesh.name = "Level 2";
   levelGroups["Level 2"].add(mesh);
@@ -271,7 +273,7 @@ createTextMesh(
   "/textures/matcaps/7.png",
   3.5,
   0.2,
-  [-25, 12, 25]
+  [-25, 19, 25]
 ).then((mesh) => {
   mesh.name = "Level 1";
   levelGroups["Level 1"].add(mesh);
@@ -297,10 +299,10 @@ window.addEventListener("resize", () => {
 });
 //Level Starts
 const levelStartPoints = {
-  "Level 1": { position: new THREE.Vector3(-50, 30, 50), lookAt: new THREE.Vector3(0, 0, 0) },
-  "Level 2": { position: new THREE.Vector3(-60, 35, 60), lookAt: new THREE.Vector3(0, 0, 0) },
-  "Level 3": { position: new THREE.Vector3(-70, 40, 70), lookAt: new THREE.Vector3(0, 0, 0) },
-  "Level 4": { position: new THREE.Vector3(-80, 45, 80), lookAt: new THREE.Vector3(0, 0, 0) }
+  "Level 1": { position: new THREE.Vector3(-30, 40, 50), lookAt: new THREE.Vector3(-25, 12, 25) },
+  "Level 2": { position: new THREE.Vector3(30, 40, 50), lookAt: new THREE.Vector3(25, 12, 25) },
+  "Level 3": { position: new THREE.Vector3(30, 40, 10), lookAt: new THREE.Vector3(25, 12, -25) },
+  "Level 4": { position: new THREE.Vector3(-30, 40, 10), lookAt: new THREE.Vector3(-25, 12, -45) }
 };
 
 
@@ -360,15 +362,26 @@ function onCanvasClick(event) {
   if (intersects.length > 0) {
     const clickedLevel = intersects[0].object.name;
     const startPoint = levelStartPoints[clickedLevel];
-    if (startPoint) {
+    const playerStartPoint = playerStartPoints[clickedLevel];
+    if (startPoint && playerStartPoint) {
       camera.position.copy(startPoint.position);
       camera.lookAt(startPoint.lookAt);
+
+      player1.position.copy(playerStartPoint);
     }
   }
 }
 
 //Player Character
 let player1;
+
+const playerStartPoints = {
+  "Level 1": new THREE.Vector3(-35, 20, 45),
+  "Level 2": new THREE.Vector3(35, 25, 45),
+  "Level 3": new THREE.Vector3(35, 30, -35),
+  "Level 4": new THREE.Vector3(-35, 35, -35)
+};
+
 
 const playerLoader = objLoader.load("/models/player.glb", (gltf) => {
   gltf.scene.scale.set(0.02, 0.02, 0.02);
@@ -377,12 +390,22 @@ const playerLoader = objLoader.load("/models/player.glb", (gltf) => {
   player1 = gltf.scene; // Store the player object for reference
 });
 
-const playerSpeed = 5;
+const playerSpeed = 15;
 let movementDirection = new THREE.Vector3(0, 0, 0);
 
 const keysPressed = {};
 
 window.addEventListener("keydown", (event) => {
+  if (event.key.toLowerCase() === 'm') {
+    if (isMusicPlaying) {
+      backgroundMusic.pause();
+      isMusicPlaying = false;
+    } else {
+      backgroundMusic.play();
+      isMusicPlaying = true;
+    }
+  }
+
   keysPressed[event.key.toLowerCase()] = true;
 });
 
