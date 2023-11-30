@@ -15,12 +15,11 @@ import createTextMesh from "./components/text.js";
 const backgroundMusic = new Audio("/sounds/background.mp3");
 backgroundMusic.volume = 0.25;
 backgroundMusic.loop = true;
+backgroundMusic.play();
 
-function playMusic(event) {
-  if (event.key === "p" || event.key === "P") {
-    backgroundMusic.play();
-  }
-}
+
+
+
 
 //Loading Manager
 const loading = new THREE.LoadingManager();
@@ -55,6 +54,36 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(-50, 30, 50);
 scene.add(camera);
 
+//Bounds
+const skyBounds = {
+  minX: -250,
+  maxX: 250,
+  minY: 0,
+  maxY: 250,
+  minZ: -250,
+  maxZ: 250
+};
+
+const constrainCameraWithinBounds = () => {
+  camera.position.x = Math.max(skyBounds.minX, Math.min(skyBounds.maxX, camera.position.x));
+  camera.position.y = Math.max(skyBounds.minY, Math.min(skyBounds.maxY, camera.position.y));
+  camera.position.z = Math.max(skyBounds.minZ, Math.min(skyBounds.maxZ, camera.position.z));
+};
+
+
+
+const levelTextMeshes = [];
+
+// Spline camera
+const splineCamera = new THREE.PerspectiveCamera(
+  84,
+  sizes.width / sizes.height,
+  0.5,
+  1000
+);
+splineCamera.position.set(-50, 30, 50);
+
+
 // Renderer
 const canvas = document.querySelector(".webgl");
 const renderer = new THREE.WebGLRenderer({ canvas: canvas });
@@ -64,7 +93,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 // Lights
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.75);
 scene.add(ambientLight);
 
 const spotlight = new THREE.SpotLight(0xfff000, 5000, 33, Math.PI * 0.28);
@@ -80,7 +109,7 @@ scene.add(axesHelper);
 // Clouds
 const objLoader = new GLTFLoader(loading);
 
-for (let i = 0; i < 84; i++) {
+for (let i = 0; i < 64; i++) {
   objLoader.load("/models/cloud.glb", (gltf) => {
     // Set a random scale for each cloud
     const scale = Math.random() * 0.01 + 0.035; // Adjust the range as needed
@@ -187,7 +216,15 @@ const levelGroups = {
   "Level 4": new THREE.Group(),
 };
 
-Object.values(levelGroups).forEach(group => scene.add(group));
+Object.values(levelGroups).forEach((group) => scene.add(group));
+
+// Define the curves for each level
+const curves = {
+  "Level 1": new HeartCurve(2.5),
+  "Level 2": new KnotCurve(2),
+  "Level 3": new KnotCurve(2),
+  "Level 4": new TorusKnot(5)
+};
 
 createTextMesh(
   "Level 4",
@@ -199,12 +236,7 @@ createTextMesh(
 ).then((mesh) => {
   mesh.name = "Level 4";
   levelGroups["Level 4"].add(mesh);
-  const torusKnot = new TorusKnot(5); // Adjust the size as needed
-  const tknotGeometry = new THREE.TubeGeometry(torusKnot, 50, 2, 3, true);
-  const tknotMaterial = new THREE.MeshLambertMaterial({ color: 0x0c0c0c });
-  const tKnotMesh = new THREE.Mesh(tknotGeometry, tknotMaterial);
-  tKnotMesh.position.set(-70, 0, -25);
-  levelGroups["Level 4"].add(tKnotMesh);
+  levelGroups["Level 4"].curve = curves["Level 4"];
 });
 
 createTextMesh(
@@ -217,13 +249,7 @@ createTextMesh(
 ).then((mesh) => {
   mesh.name = "Level 3";
   levelGroups["Level 3"].add(mesh);
-  const knotShape = new KnotCurve(2); // Adjust the size as needed
-  const knotGeometry = new THREE.TubeGeometry(knotShape, 50, 3, 4, true);
-  const knotMaterial = new THREE.MeshLambertMaterial({ color: 0x0c0c0c });
-  const lapMesh = new THREE.Mesh(knotGeometry, knotMaterial);
-  lapMesh.position.set(60, -30, -100);
-  lapMesh.rotation.set(0, Math.PI / 2, 0);
-  levelGroups["Level 3"].add(lapMesh);
+  levelGroups["Level 3"].curve = curves["Level 3"];
 });
 
 createTextMesh(
@@ -236,12 +262,7 @@ createTextMesh(
 ).then((mesh) => {
   mesh.name = "Level 2";
   levelGroups["Level 2"].add(mesh);
-  const knotShape = new KnotCurve(2); // Adjust the size as needed
-  const knotGeometry = new THREE.TubeGeometry(knotShape, 50, 3, 4, true);
-  const knotMaterial = new THREE.MeshLambertMaterial({ color: 0x0c0c0c });
-  const knotMesh = new THREE.Mesh(knotGeometry, knotMaterial);
-  knotMesh.position.set(100, -30, 25);
-  levelGroups["Level 2"].add(knotMesh);
+  levelGroups["Level 2"].curve = curves["Level 2"];
 });
 
 createTextMesh(
@@ -254,44 +275,12 @@ createTextMesh(
 ).then((mesh) => {
   mesh.name = "Level 1";
   levelGroups["Level 1"].add(mesh);
-  const heartShape = new HeartCurve(2.5); // Adjust the size as needed
-  const heartGeometry = new THREE.TubeGeometry(heartShape, 50, 3, 3, true);
-  const heartMaterial = new THREE.MeshLambertMaterial({ color: 0x0c0c0c });
-  const heartMesh = new THREE.Mesh(heartGeometry, heartMaterial);
-  heartMesh.position.set(-100, 0, 25);
-  levelGroups["Level 1"].add(heartMesh);
+  levelGroups["Level 1"].curve = curves["Level 1"];
 });
-
 
 // Orbit Controls
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
-
-// Animation
-const clock = new THREE.Clock();
-const loop = () => {
-  //TIMING
-  const animate = () => {
-    // Update the positions, rotations, and scales of the rings
-    scene.traverse((object) => {
-      if (object instanceof THREE.Mesh) {
-        if (object.geometry.type === "TorusGeometry") {
-          object.rotation.x += 0.01 * Math.sin(Date.now() * 0.001);
-          object.rotation.y += 0.02 * Math.sin(Date.now() * 0.001);
-        }
-      }
-    });
-
-    // Render the scene
-    renderer.render(scene, camera);
-
-    // Request the next frame of animation
-    requestAnimationFrame(animate);
-  };
-
-  animate();
-};
-loop();
 
 // Resize
 window.addEventListener("resize", () => {
@@ -306,39 +295,46 @@ window.addEventListener("resize", () => {
   // Update renderer
   renderer.setSize(sizes.width, sizes.height);
 });
+//Level Starts
+const levelStartPoints = {
+  "Level 1": { position: new THREE.Vector3(-50, 30, 50), lookAt: new THREE.Vector3(0, 0, 0) },
+  "Level 2": { position: new THREE.Vector3(-60, 35, 60), lookAt: new THREE.Vector3(0, 0, 0) },
+  "Level 3": { position: new THREE.Vector3(-70, 40, 70), lookAt: new THREE.Vector3(0, 0, 0) },
+  "Level 4": { position: new THREE.Vector3(-80, 45, 80), lookAt: new THREE.Vector3(0, 0, 0) }
+};
 
-window.addEventListener("keydown", playMusic);
+
 // Camera Animation
 function animateCameraToLevel(clickedMesh) {
   const levelGroup = levelGroups[clickedMesh.name];
-  if (!levelGroup) {
-    console.error('Group not found for', clickedMesh.name);
+  if (!levelGroup || !levelGroup.curve) {
+    console.error("Group or curve not found for", clickedMesh.name);
     return;
   }
 
-  // Find the spline mesh within the group
-  const splineMesh = levelGroup.children.find(child => child instanceof THREE.Mesh && child.geometry instanceof THREE.TubeGeometry);
-  if (!splineMesh) {
-    console.error('Spline mesh not found in group for', clickedMesh.name);
-    return;
-  }
+  // Find the spline 
 
-  const spline = splineMesh.geometry.parameters.path;
+  const spline = levelGroup.curve;
 
   const looptime = 20 * 1000; // Duration of the animation
   let t = 0;
 
   function animate() {
     t += (1 / looptime) * clock.getDelta();
-    if (t > 1) t = 0; // Loop or reset based on your preference
+    if (t > 1) {
+      t = 0;
+      renderer.render(scene, camera); // Switch back to main camera after completion
+      return; // Stop the animation loop
+    }
 
     const position = spline.getPointAt(t);
     const tangent = spline.getTangentAt(t).normalize();
     const lookAtPosition = position.clone().add(tangent);
 
-    camera.position.copy(position);
-    camera.lookAt(lookAtPosition);
+    splineCamera.position.copy(position);
+    splineCamera.lookAt(lookAtPosition);
 
+    renderer.render(scene, splineCamera); // Render with splineCamera
     requestAnimationFrame(animate);
   }
 
@@ -355,9 +351,83 @@ function onCanvasClick(event) {
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
 
-  const intersects = raycaster.intersectObjects(levelTextMeshes);
+  const allLevelMeshes = []; // This should be an array of all clickable meshes
+  for (const groupName in levelGroups) {
+    allLevelMeshes.push(...levelGroups[groupName].children);
+  }
+
+  const intersects = raycaster.intersectObjects(allLevelMeshes);
   if (intersects.length > 0) {
-    // A level text mesh was clicked
-    animateCameraToLevel(intersects[0].object);
+    const clickedLevel = intersects[0].object.name;
+    const startPoint = levelStartPoints[clickedLevel];
+    if (startPoint) {
+      camera.position.copy(startPoint.position);
+      camera.lookAt(startPoint.lookAt);
+    }
   }
 }
+
+//Player Character
+let player1;
+
+const playerLoader = objLoader.load("/models/player.glb", (gltf) => {
+  gltf.scene.scale.set(0.02, 0.02, 0.02);
+  gltf.scene.position.set(0, 10, 0);
+  scene.add(gltf.scene);
+  player1 = gltf.scene; // Store the player object for reference
+});
+
+const playerSpeed = 5;
+let movementDirection = new THREE.Vector3(0, 0, 0);
+
+const keysPressed = {};
+
+window.addEventListener("keydown", (event) => {
+  keysPressed[event.key.toLowerCase()] = true;
+});
+
+window.addEventListener("keyup", (event) => {
+  keysPressed[event.key.toLowerCase()] = false;
+});
+
+const updatePlayerPosition = () => {
+  if (!player1) return; // Check if the player is loaded
+
+  movementDirection.set(
+    keysPressed["a"] ? -1 : keysPressed["d"] ? 1 : 0,
+    0,
+    keysPressed["w"] ? -1 : keysPressed["s"] ? 1 : 0
+  );
+  movementDirection.normalize().multiplyScalar(playerSpeed * clock.getDelta());
+  player1.position.add(movementDirection);
+};
+
+// Animation
+const clock = new THREE.Clock();
+const loop = () => {
+  //TIMING
+  const animate = () => {
+    // Update the positions, rotations, and scales of the rings
+    updatePlayerPosition();
+    scene.traverse((object) => {
+      if (object instanceof THREE.Mesh) {
+        if (object.geometry.type === "TorusGeometry") {
+          object.rotation.x += 0.01 * Math.sin(Date.now() * 0.001);
+          object.rotation.y += 0.02 * Math.sin(Date.now() * 0.001);
+        }
+      }
+    });
+    constrainCameraWithinBounds();
+    // Render the scene
+    renderer.render(scene, camera);
+    
+    
+    // Request the next frame of animation
+    requestAnimationFrame(animate);
+  };
+
+  animate();
+  
+  
+};
+loop();
